@@ -43,10 +43,12 @@ class TicketComponentPolicy(Component):
     
     # IPermissionPolicy(Interface)
     def check_permission(self, action, username, resource, perm):
-        if resource is None: return None
-        if action == "TICKET_RESTRICT_COMPONENT": return None
         
-        if action.startswith('TICKET_') and perm.has_permission("TICKET_RESTRICT_COMPONENT"):
+        if resource is not None and resource.realm == "ticket" \
+            and action != "TICKET_RESTRICT_COMPONENT" and action.startswith('TICKET_') \
+            and perm.has_permission("TICKET_RESTRICT_COMPONENT") \
+            and not perm.has_permission("TRAC_ADMIN"):
+            
             # get the ticket
             try:
                 ticket = Ticket(self.env, resource.id)
