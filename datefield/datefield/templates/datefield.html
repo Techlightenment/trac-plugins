@@ -1,8 +1,8 @@
 <script type="text/javascript" xmlns="http://www.w3.org/1999/xhtml"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:py="http://genshi.edgewall.org/" py:strip="">
-jQuery(document).ready(function($) {
-    jQuery('.datepick').datepicker({
+
+var datepickerOpts = {
         firstDay: "${data.first_day}",
         dateFormat: "${data.format}",
         showOn: "both",
@@ -14,6 +14,10 @@ jQuery(document).ready(function($) {
         changeYear: ${data.change_year and 'true' or 'false'},
         buttonImage: "${data.calendar}",
         buttonImageOnly: true
+    };
+jQuery(document).ready(function($) {
+    jQuery('.datepick').each(function(){
+    	$(this).datepicker(datepickerOpts);
     });
 });
 </script>

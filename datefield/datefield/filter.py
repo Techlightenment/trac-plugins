@@ -36,6 +36,9 @@ class DateFieldModule(Component):
         doc="""Use datepicker for milestone due/completed fields? 
         If you turn this on, you must use MM/DD/YYYY for the date format.
         Set format to mdy and separator to / (default=Off)""")
+    use_query = BoolOption('datefield', 'query', default='true',
+        doc="""apply datepicker on query results pages
+        Use this if you are also using the gridmod plugin""")
 
     implements(IRequestFilter, IRequestHandler, ITemplateProvider, \
             ITicketManipulator, ITemplateStreamFilter)
@@ -73,6 +76,11 @@ class DateFieldModule(Component):
                 stream = stream | Transformer(
                     '//input[@name="field_' + field + '"]'
                 ).attr('class', attr_callback)
+        elif self.use_query and filename in ('query.html', 'report_view.html'):
+            for field in ('duedate', 'completeddate'):
+                stream = stream | Transformer(
+                    '//input[@name="' + field + '"]'
+                ).attr('class', attr_callback)
         elif self.use_milestone and filename in ('milestone_edit.html', 
                 'admin_milestones.html'):
             for field in ('duedate', 'completeddate'):
@@ -91,7 +99,9 @@ class DateFieldModule(Component):
         if self.use_milestone:
             mine.append('/milestone')
             mine.append('/admin/ticket/milestones')
-
+        if self.use_query:
+            mine.append('/query')
+        
         match = False
         for target in mine + self.match_req:
             if req.path_info.startswith(target):
