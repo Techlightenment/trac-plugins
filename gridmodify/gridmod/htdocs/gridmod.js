@@ -11,6 +11,7 @@ if(!window.console.firebug || !window.console.log)
     window.console.log = function() {};
 
 $(document).ready(function() {
+	var _next_uid = 0; 
 
     // Do post-load processing on each field type on the page
 
@@ -32,7 +33,10 @@ $(document).ready(function() {
         var text = $(this);
         $("td." + field).each(function(j) {
             var gridmod_default = $.trim($(this).text());
-            $(this).html(text.clone().get(0));
+            var ele = text.clone().attr("id", "uid" + (_next_uid++));
+            if(ele.hasClass("hasDatepicker") && typeof(datepickerOpts) !== "undefined")
+            	ele.removeClass("hasDatepicker").datepicker(datepickerOpts);
+            $(this).html(ele);
             console.log("  gridmod_default: " + gridmod_default);
             if (gridmod_default != '') {
                 $(this).contents('input').attr('value',gridmod_default);

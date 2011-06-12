@@ -4,6 +4,7 @@
 # Contributor: Zach Miller
 
 import re
+import uuid
 from datetime import datetime 
 from trac.core import *
 from trac.perm import IPermissionRequestor        
@@ -82,6 +83,9 @@ class GridModifyModule(Component):
                     elif (field['type'] == 'text'):
                         self.log.debug("GridModifyModule: process_request: INPUT TEXT TAG: setting '%s' to '%s'.", field_name, val)
                         ticket[field_name] = val
+                    elif (field['type'] == 'date'):
+                        self.log.debug("GridModifyModule: process_request: INPUT DATE TAG: setting '%s' to '%s'.", field_name, val)
+                        ticket[field_name] = val
                     elif (field['type'] == 'checkbox'):
                         if (val == 'True' or val == '1'):
                             val = '1';
@@ -131,7 +135,6 @@ class GridModifyModule(Component):
     # ITemplateStreamFilter methods
     def filter_stream(self, req, method, filename, stream, formdata):
         """Modifies query page to add modifiable components"""
-
         self.log.debug("GridModifyModule: filter_stream entered")
 
         # We create an invisible storage div in the document for the default tag values.
@@ -198,6 +201,17 @@ class GridModifyModule(Component):
 
                     div.append(text)
 
+                # INPUT DATE tags
+                elif ((field['type'] == 'date') and (field['name'] in affected_fields)):
+                    text = tag.input(type='text', name=field['name'], class_='gridmod_form datepick')
+                    if(field.has_key('value')):
+                        self.log.debug("TEXT INPUT '%s' (%s) HAS DEFAULT VALUE '%s'", field['name'], field['label'], field['value'])
+                        text.append(field['value'])
+                    else:
+                        text.append('')
+
+                    div.append(text)
+                
                 # INPUT CHECKBOX tags
                 elif ((field['type'] == 'checkbox') and (field['name'] in affected_fields)):
                     checkbox = tag.input(type='checkbox', name=field['name'], class_='gridmod_form')
