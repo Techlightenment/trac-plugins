@@ -65,6 +65,8 @@ class WikiCalendarMacros(Component):
     gridmodify_enabled = BoolOption('wikiticketcalendar', 'gridmodify',
                            'true', doc = """Enable gridmodify support.
                            Requires the gridmodify and datefield plugins!""")
+    hours_field_name = Option('wikiticketcalendar', 'ticket.hours_field',
+                            'estimatedhours', doc = """Estimated hours field""")
 
     def __init__(self):
         # bind 'wikicalendar' catalog to the specified locale directory
@@ -176,6 +178,7 @@ class WikiCalendarMacros(Component):
         id = str(t.get('id'))
         status = t.get('status')
         priority = t.get('priority')
+        hours = t.get(self.hours_field_name)
         summary = to_unicode(t.get('summary'))
         owner = to_unicode(t.get('owner'))
         description = to_unicode(t.get('description')[:1024])
@@ -217,6 +220,7 @@ class WikiCalendarMacros(Component):
         # fix stripping of regular leading space in IE
         blank = '&nbsp;'
         ticket(Markup(blank), summary, ' (', owner, ')')
+        ticket(tag.span(str(hours) + "h", class_="hours"))
 
         summary = tag(summary, ' (', owner, ')')
         ticket_short = '#' + id
@@ -486,6 +490,7 @@ class WikiCalendarMacros(Component):
                         url = self.env.href.wiki(wiki)
                         pages = self._gen_wiki_links(wiki, day, a_class,
                                                      url, wiki_page_template)
+                    hours = 0
                     cell = tag.td(pages)
                     cell(class_=td_class, valign='top', **{"data-date": "%02i/%02i/%i" %(day, month, year)})
                     if name == 'WikiCalendar':
@@ -498,7 +503,7 @@ class WikiCalendarMacros(Component):
 
                         match = []
                         match_od = []
-                        ticket_heap = tag('')
+                        ticket_heap = tag.div('', class_="tickets")
                         ticket_list = tag.div('')
                         ticket_list(align='left', class_='condense')
 
@@ -523,6 +528,7 @@ class WikiCalendarMacros(Component):
                                         continue
 
                             id = t.get('id')
+                            hours += float(t.get(self.hours_field_name))
                             ticket, short = self._gen_ticket_entry(t)
                             ticket_heap(ticket)
                             if not id in match:
@@ -546,6 +552,7 @@ class WikiCalendarMacros(Component):
 
                                 a_class = 'opendate_'
                                 id = t.get('id')
+                                hours += float(t.get(self.hours_field_name))
                                 ticket, short = self._gen_ticket_entry(t,
                                                                   a_class)
                                 ticket_heap(ticket)
@@ -565,6 +572,7 @@ class WikiCalendarMacros(Component):
                             line(cell(ticket_list))
                         else:
                             line(cell(ticket_heap))
+                    cell(tag.span("%dh" % hours, class_="totalhours"))
                 else:
                     if name == 'WikiCalendar':
                         if w == 0:

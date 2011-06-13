@@ -5,7 +5,7 @@ if(!window.console.firebug || !window.console.log)
 
 $(document).ready(function(){
 	$(".wikitcalendar .ticket").draggable({revert: "invalid"});
-	$(".wikitcalendar .day, .wikitcalendar .today").droppable({
+	$(".wikitcalendar td.day, .wikitcalendar td.today").droppable({
 		hoverClass: "ui-state-hover",
 		drop: function(event, ui) {
 			ui.draggable.css({
@@ -14,12 +14,20 @@ $(document).ready(function(){
 				top: null
 			});
 			
-			if(ui.draggable.parent()[0] == this)
+			if(ui.draggable.closest("td")[0] == this)
 				return;
 			
-			ui.draggable.appendTo(this);
+			var ticket_hours = parseFloat(ui.draggable.find(".hours").text());
 			
-			var ticket_field = $("table.wicketcalendar").attr("data-duedatefield");
+			var old_hours = ui.draggable.closest("td").find(".totalhours");
+			old_hours.text((parseFloat(old_hours.text()) - ticket_hours) + "h");
+			
+			var new_hours = $(this).find(".totalhours");
+			new_hours.text((parseFloat(new_hours.text()) + ticket_hours) + "h");
+			
+			ui.draggable.appendTo($(this).children(".tickets"));
+			
+			var ticket_field = $("table.wikitcalendar").attr("data-duedatefield");
 			var ticket_number = ui.draggable.attr("data-ticketid");
 			var new_value = $(this).attr("data-date");
             console.log("Changing "+ticket_field+" for #"+ticket_number+" to "+new_value+".");

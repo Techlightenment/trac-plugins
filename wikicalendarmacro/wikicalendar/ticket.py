@@ -45,13 +45,14 @@ class WikiCalendarTicketProvider(WikiCalendarBuilder):
         """TicketQuery provider method."""
         due_field_name = self.config.get('wikiticketcalendar',
                                          'ticket.due_field.name')
-
+        hours_field_name = self.config.get('wikiticketcalendar',
+                                         'ticket.hours_field')
         # Parse args and kwargs.
         argv, kwargs = parse_args(content, strict=False)
 
         # Define minimal set of values.
         std_fields = ['description', 'owner', 'status', 'summary']
-        kwargs['col'] = "|".join(std_fields + [due_field_name])
+        kwargs['col'] = "|".join(std_fields + [due_field_name, hours_field_name])
 
         # Construct the querystring.
         query_string = '&'.join(['%s=%s' %
