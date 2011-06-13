@@ -1,3 +1,8 @@
+if(!window.console)
+    window.console = {};
+if(!window.console.firebug || !window.console.log)
+    window.console.log = function() {};
+
 $(document).ready(function(){
 	$(".wikitcalendar .ticket").draggable({revert: "invalid"});
 	$(".wikitcalendar .day, .wikitcalendar .today").droppable({
@@ -14,7 +19,7 @@ $(document).ready(function(){
 			
 			ui.draggable.appendTo(this);
 			
-			var ticket_field = "duedate";
+			var ticket_field = $("table.wicketcalendar").attr("data-duedatefield");
 			var ticket_number = ui.draggable.attr("data-ticketid");
 			var new_value = $(this).attr("data-date");
             console.log("Changing "+ticket_field+" for #"+ticket_number+" to "+new_value+".");

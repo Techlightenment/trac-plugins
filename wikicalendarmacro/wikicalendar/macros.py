@@ -410,9 +410,9 @@ class WikiCalendarMacros(Component):
         if name == 'WikiTicketCalendar':
             if cal_width.startswith('+') is True:
                 width=":".join(['min-width', cal_width]) 
-                buff(class_='wikitcalendar', style=width)
+                buff(class_='wikitcalendar', style=width, **{"data-duedatefield": self.due_field_name})
             else:
-                buff(class_='wikitcalendar')
+                buff(class_='wikitcalendar', **{"data-duedatefield": self.due_field_name})
         if name == 'WikiCalendar':
                 buff(class_='wiki-calendar')
 
