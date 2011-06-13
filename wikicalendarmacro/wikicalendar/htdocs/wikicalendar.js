@@ -30,7 +30,7 @@ $(document).ready(function(){
             var chromePath = $("script[src*='wikicalendar']").attr("src").replace("wikicalendar/wikicalendar.js", "gridmod/");
             var image = ui.draggable.find("img").get(0) || document.createElement('img');
             image.src = chromePath + 'loading.gif';
-            $(image).appendTo(ui.draggable);
+            $(image).appendTo(ui.draggable).fadeIn();
             $.ajax({
                 // Although semantically this should be POST, that doesn't seem to work.
                 'type': "GET",
@@ -39,6 +39,7 @@ $(document).ready(function(){
                 'success': function(){
                     console.log('Updated #'+ticket_number+'.');
                     image.src = chromePath + 'ok.png';
+                    setTimeout(function(){$(image).fadeOut()}, 5000);
                 },
                 'error': function(){
                     console.log('Failed to update #'+ticket_number+'.');
