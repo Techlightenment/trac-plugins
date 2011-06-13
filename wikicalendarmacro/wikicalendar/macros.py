@@ -30,12 +30,12 @@ from genshi.core            import escape, Markup
 from genshi.filters.html    import HTMLSanitizer
 from genshi.input           import HTMLParser, ParseError
 
-from trac.config            import Configuration, Option
+from trac.config            import Configuration, Option, BoolOption
 from trac.core              import Component, implements
 from trac.util.datefmt      import format_date, to_utimestamp
 from trac.util.text         import to_unicode
 from trac.web.href          import Href
-from trac.web.chrome        import add_stylesheet, ITemplateProvider
+from trac.web.chrome        import add_stylesheet, add_script, ITemplateProvider
 from trac.wiki.api          import parse_args, IWikiMacroProvider, \
                                    WikiSystem
 from trac.wiki.formatter    import format_to_html
@@ -62,6 +62,9 @@ class WikiCalendarMacros(Component):
                            that is any expression supported by strftime or
                            'ts' identifier for POSIX microsecond time stamps
                            as supported in later Trac versions.""")
+    gridmodify_enabled = BoolOption('wikiticketcalendar', 'gridmodify',
+                           'true', doc = """Enable gridmodify support.
+                           Requires the gridmodify and datefield plugins!""")
 
     def __init__(self):
         # bind 'wikicalendar' catalog to the specified locale directory
@@ -172,6 +175,7 @@ class WikiCalendarMacros(Component):
     def _gen_ticket_entry(self, t, a_class=''):
         id = str(t.get('id'))
         status = t.get('status')
+        priority = t.get('priority')
         summary = to_unicode(t.get('summary'))
         owner = to_unicode(t.get('owner'))
         description = to_unicode(t.get('description')[:1024])
@@ -181,6 +185,9 @@ class WikiCalendarMacros(Component):
             a_class = a_class + 'closed'
         else:
             a_class = a_class + 'open'
+        
+        a_class += " ticket priority-" + priority            
+        
         markup = format_to_html(self.env, self.ref.context, description)
         # Escape, if requested
         if self.sanitize is True:
@@ -206,7 +213,7 @@ class WikiCalendarMacros(Component):
         ticket = tag.a(ticket, href=url)
         ticket(tip, class_='tip', target='_blank')
         ticket = tag.div(ticket)
-        ticket(class_=a_class, align='left')
+        ticket(class_=a_class, align='left', **{"data-ticketid": id})
         # fix stripping of regular leading space in IE
         blank = '&nbsp;'
         ticket(Markup(blank), summary, ' (', owner, ')')
@@ -273,7 +280,7 @@ class WikiCalendarMacros(Component):
                 wiki_page_format = str(args[3])
 
         list_condense = 0
-        show_t_open_dates = True
+        show_t_open_dates = False
         wiki_page_template = ""
         wiki_subpages = []
         if name == 'WikiTicketCalendar':
@@ -480,7 +487,7 @@ class WikiCalendarMacros(Component):
                         pages = self._gen_wiki_links(wiki, day, a_class,
                                                      url, wiki_page_template)
                     cell = tag.td(pages)
-                    cell(class_=td_class, valign='top')
+                    cell(class_=td_class, valign='top', **{"data-date": "%02i/%02i/%i" %(day, month, year)})
                     if name == 'WikiCalendar':
                         line(cell)
                     else:
@@ -593,4 +600,11 @@ class WikiCalendarMacros(Component):
                 buff(class_='wiki-calendar')
         # Add common CSS stylesheet
         add_stylesheet(self.ref.req, 'wikicalendar/wikicalendar.css')
+        
+        if self.gridmodify_enabled:
+            add_script(self.ref.req, 'datefield/js/jquery-ui.js')
+            add_script(self.ref.req, 'wikicalendar/wikicalendar.js')
+            add_stylesheet(self.ref.req, 'datefield/css/jquery-ui.css')
+            add_stylesheet(self.ref.req, 'datefield/css/ui.datepicker.css')
+        
         return buff
