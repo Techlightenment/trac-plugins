@@ -12,7 +12,7 @@ from trac.util.compat import set
 from trac.db import with_transaction
 
 class TicketComponentPolicy(Component):
-    """Central tasks for the PrivateTickets plugin.
+    """Component based ticket access policy.
     
     If users have the TICKET_RESTRICT_COMPONENT permission, then they will only be allowed
     to view tickets for the component group that they are a member of.
@@ -44,8 +44,11 @@ class TicketComponentPolicy(Component):
     # IPermissionPolicy(Interface)
     def check_permission(self, action, username, resource, perm):
         
+        print resource, action, perm
+        
         if resource is not None and resource.realm == "ticket" \
             and action != "TICKET_RESTRICT_COMPONENT" and action.startswith('TICKET_') \
+            and action != "TICKET_CREATE" \
             and perm.has_permission("TICKET_RESTRICT_COMPONENT") \
             and not perm.has_permission("TRAC_ADMIN"):
             
