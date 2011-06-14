@@ -44,8 +44,6 @@ class TicketComponentPolicy(Component):
     # IPermissionPolicy(Interface)
     def check_permission(self, action, username, resource, perm):
         
-        print resource, action, perm
-        
         if resource is not None and resource.realm == "ticket" \
             and action != "TICKET_RESTRICT_COMPONENT" and action.startswith('TICKET_') \
             and action != "TICKET_CREATE" \
