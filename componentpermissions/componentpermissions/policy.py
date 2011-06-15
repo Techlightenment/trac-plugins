@@ -59,7 +59,7 @@ class TicketComponentPolicy(Component):
             # get the groups the current user is a member of
             groups = self._get_groups(username)
             
-            if ticket['component'] in groups:
+            if not ticket['component'] or ticket['component'] in groups:
                 return True
                 
             return False
